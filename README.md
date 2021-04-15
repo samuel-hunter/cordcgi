@@ -1,5 +1,7 @@
-# cordCGI
+# CordCGI
 Do one thing, and one thing terrible.
+
+![Image of Trollface inventing CordCGI](./cordcgi.jpg)
 
 ---
 
