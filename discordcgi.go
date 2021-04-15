@@ -90,10 +90,24 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	cmd := exec.Command(command, args[1:]...)
 	var out bytes.Buffer
 
+	// Parse timestamp parameter. Might fail, set timestamp to 0.
+	var nanotime int64 = 0
+	mtime, err := m.Timestamp.Parse()
+	if err == nil {
+		nanotime = mtime.UnixNano()
+	}
+
 	cmd.Stdout = &out
 	cmd.Env = append(os.Environ(),
-		"DISCORD_MESSAGE_AUTHOR="+m.Author.ID,
 		"DISCORD_MESSAGE="+m.ID,
+		"DISCORD_MESSAGE_AUTHOR="+m.Author.ID,
+		"DISCORD_MESSAGE_AUTHOR_AVATAR="+m.Author.Avatar,
+		"DISCORD_MESSAGE_AUTHOR_LOCALE="+m.Author.Locale,
+		"DISCORD_MESSAGE_AUTHOR_USERNAME="+m.Author.Username,
+		"DISCORD_MESSAGE_CHANNEL="+m.ChannelID,
+		"DISCORD_MESSAGE_GUILD="+m.GuildID,
+		"DISCORD_MESSAGE_UNIXNANOS="+fmt.Sprint(nanotime),
+
 		// Yadda yadda put literally everything here
 	)
 	if err := cmd.Run(); err != nil {

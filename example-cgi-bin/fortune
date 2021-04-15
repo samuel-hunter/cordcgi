@@ -1,0 +1,6 @@
+#!/bin/sh -eu
+# Fortune wrapped in a cowsay
+
+echo '```'
+fortune | cowsay
+echo '```'

@@ -1,0 +1,4 @@
+#!/bin/sh -eu
+# List all executable files in the directory.
+cd "$(dirname "$0")"
+find -type f -perm -111 | sed 's#^./##'

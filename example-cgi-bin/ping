@@ -1,0 +1,7 @@
+#!/bin/sh -eu
+
+# milliseconds since message timestamp
+delay="$(( ($(date +%s%N) - DISCORD_MESSAGE_UNIXNANOS) / 1000000))"
+
+# ping the recipient with the delay
+echo "<@${DISCORD_MESSAGE_AUTHOR}> Pong! (${delay}ms)"
