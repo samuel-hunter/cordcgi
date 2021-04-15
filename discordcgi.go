@@ -97,6 +97,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		nanotime = mtime.UnixNano()
 	}
 
+	cmd.Stdin = strings.NewReader(m.Content)
 	cmd.Stdout = &out
 	cmd.Env = append(os.Environ(),
 		"DISCORD_MESSAGE="+m.ID,
