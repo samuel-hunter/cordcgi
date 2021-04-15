@@ -42,6 +42,8 @@ func loadSettingsOrPanic() {
 }
 
 func botUrl() string {
+	// The 2048 permissions bit is solely SendMessage. That's it. This bot
+	// framework doesn't do anything else.
 	return fmt.Sprintf("https://discordapp.com/oauth2/authorize"+
 		"?client_id=%s&scope=bot&permissions=2048",
 		Settings.ClientID)
@@ -82,11 +84,20 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// Log all messages being processed.
-	logger.Println("New message: ", m.Content)
+	logger.Printf("New message from %s#%s <@%s>: %s\n", m.Author.Username, m.Author.Discriminator, m.Author.ID, m.Content)
 
 	content := m.Content[len(Settings.Prefix):]
 	args := strings.Split(content, " ")
-	command := path.Join(Settings.CgiBin, args[0])
+	command := path.Clean(args[0])
+
+	// Make sure the command doesn't escape out and run binaries we don't
+	// want to see.
+	if strings.HasPrefix(command, "..") {
+		logger.Println("Command", command, "tried to escape. Nice try.")
+		return
+	}
+
+	command = path.Join(Settings.CgiBin, command)
 	cmd := exec.Command(command, args[1:]...)
 	var out bytes.Buffer
 
