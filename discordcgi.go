@@ -4,12 +4,16 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"log"
 	"os"
+	"os/exec"
 	"os/signal"
+	"path"
+	"strings"
 	"syscall"
 )
 
@@ -19,9 +23,10 @@ var logger = log.New(os.Stdout, "Discordcgi: ",
 	log.Ldate|log.Ltime|log.Lshortfile)
 
 var Settings struct {
+	CgiBin   string
 	ClientID string
-	Token    string
 	Prefix   string
+	Token    string
 }
 
 func loadSettingsOrPanic() {
@@ -71,5 +76,29 @@ func main() {
 }
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Author.Bot || !strings.HasPrefix(m.Content, Settings.Prefix) {
+		// Disregard all bot comments and non-prefix messages
+		return
+	}
+
+	// Log all messages being processed.
 	logger.Println("New message: ", m.Content)
+
+	content := m.Content[len(Settings.Prefix):]
+	args := strings.Split(content, " ")
+	command := path.Join(Settings.CgiBin, args[0])
+	cmd := exec.Command(command, args[1:]...)
+	var out bytes.Buffer
+
+	cmd.Stdout = &out
+	cmd.Env = append(os.Environ(),
+		"DISCORD_MESSAGE_AUTHOR="+m.Author.ID,
+		"DISCORD_MESSAGE="+m.ID,
+		// Yadda yadda put literally everything here
+	)
+	if err := cmd.Run(); err != nil {
+		log.Println(err)
+	}
+
+	s.ChannelMessageSend(m.ChannelID, out.String())
 }
