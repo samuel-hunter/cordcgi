@@ -1,5 +1,8 @@
 /*
  * DiscordCGI: run commands from some cgi-bin/ directory as commands
+ *
+ * Copyright (c) 2021 Samuel Hunter
+ * Licensed under GNU AGPL3.0-only.
  */
 package main
 
