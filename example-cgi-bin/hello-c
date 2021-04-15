@@ -1,0 +1,10 @@
+#!/usr/bin/tcc -run
+#include<stdio.h>
+#include<stdlib.h>
+
+int
+main(void)
+{
+	printf("<@%s> Hello, World!\n", getenv("DISCORD_MESSAGE_AUTHOR"));
+	return 0;
+}

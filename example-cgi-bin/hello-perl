@@ -1,0 +1,5 @@
+#!/usr/bin/perl -w
+use strict;
+use Env qw(DISCORD_MESSAGE_AUTHOR);
+
+print "<\@$DISCORD_MESSAGE_AUTHOR> Hello, World!";
